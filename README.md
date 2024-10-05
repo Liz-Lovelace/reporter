@@ -1,4 +1,3 @@
-
 ## Reporter function in javascript:
 ```javascript
 /**
@@ -57,6 +56,39 @@ export function report(options) {
     console.error('ERROR WHILE SUBMITTING ERROR:', err);
   }
 }
+```
+
+## Add this to the top of node.js code (and don't forget to import `report`):
+```javascript
+process.on('uncaughtException', async (error) => {
+  report({error, message: 'Uncaught Exception in node.js'})
+  await new Promise(resolve => setTimeout(resolve, 1000))
+  process.exit(1)
+});
+
+process.on('unhandledRejection', (error) => {
+  report({error, message: 'Unhandled Promise Rejection in node.js'})
+});
+```
+
+## Add this before `app.listen()` in express:
+```javascript
+app.use((error, req, res, next) => {
+  report({error, message: 'Express Error'})
+  res.status(500).send('Something broke!')
+});
+```
+
+## Add this to the top of browser `<script>`:
+```javascript
+window.addEventListener('unhandledrejection', (error) => {
+    report({error: error.reason, message: 'Unhandled Promise Rejection in browser'});
+});
+
+window.onerror = function (message, source, lineno, colno, error) {
+    report({error, message: 'Uncaught Exception in browser'});
+    return true;
+};
 ```
 
 ## Report from curl:

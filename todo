@@ -3,4 +3,6 @@ GOAL:
 - [x] separate chats by project
 - [x] catch docker restarts/errors
 - [x] templates for js, curl, docker, frontend/backend
-- [ ] deploy via docker
+- [x] deploy via docker
+- [ ] see how global error handling works in js
+- [ ] integrate into a bunch of apps

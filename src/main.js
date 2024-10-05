@@ -1,10 +1,12 @@
 import express from 'express';
+import cors from 'cors';
 import { sendTopicMessage } from './telegram.js';
 
 const app = express();
 const port = 9999;
 
 app.use(express.json());
+app.use(cors());
 
 app.post('/submit', async (req, res) => {
   try {
