@@ -1,0 +1,6 @@
+GOAL:
+- [x] pretty messages from node errors
+- [x] separate chats by project
+- [x] catch docker restarts/errors
+- [x] templates for js, curl, docker, frontend/backend
+- [ ] deploy via docker
