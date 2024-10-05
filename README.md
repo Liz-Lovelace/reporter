@@ -1,5 +1,5 @@
 
-Reporter function in javascript:
+## Reporter function in javascript:
 ```javascript
 /**
  * Sends a report to pager duty
@@ -59,29 +59,42 @@ export function report(options) {
 }
 ```
 
-Report from curl:
+## Report from curl:
 ```bash
-curl -X POST "http://report.liz-lovelace.com/submit?channel=0" -H "Content-Type: application/json" \
+curl -X POST "https://report.liz-lovelace.com/submit?channel=0" -H "Content-Type: application/json" \
   -d '{
     "reportString": "",
     "reportType": "linux"
   }' &
 ```
 
-Systemd docker monitor:
-Put the code below in `/etc/systemd/system/docker-reporter.service`
+## Systemd docker monitor:
+
+Script to monitor docker container crashes:
+```bash
+#!/bin/bash
+
+docker events --filter "event=die" | while read event
+do
+    error_log="$event"
+
+    json_data=$(printf "{\"reportString\": \"%s\", \"reportType\": \"docker\"}" "$error_log")
+
+    curl -X POST "https://report.liz-lovelace.com/submit?channel=0" \
+    -H "Content-Type: application/json" \
+    -d "$json_data"
+done
+```
+
+Then you can run the script with systemd:
 ```bash
 [Unit]
-Description=Monitor Docker container stops or crashes and report via curl
+Description=Report when a Docker container dies
 After=docker.service
 Requires=docker.service
 
 [Service]
-ExecStart=/bin/bash -c 'docker events --filter "event=die" | while read event; do \
-    container_name=$(echo $event | grep -oP "(?<=container:)[^ ]*"); \
-    curl -X POST "https://report.liz-lovelace.com/submit?channel=0" -H "Content-Type: application/json" \
-    -d "{\"reportString\": \"Container $container_name has crashed\", \"reportType\": \"docker\"}" & \
-    done'
+ExecStart=/usr/local/bin/docker-reporter.sh
 
 Restart=always
 RestartSec=5
@@ -90,14 +103,13 @@ RestartSec=5
 WantedBy=multi-user.target
 ```
 
-Enable and start the service:
+And launch the service:
 ```bash
-sudo systemctl enable docker-reporter.service
-sudo systemctl start docker-reporter.service
+sudo systemctl daemon-reload
+sudo systemctl restart docker-reporter.service
 ```
 
-Run the server with docker:
-
+## Run the server with docker:
 ```bash
 docker run -d --pull always --name reporter -p 9999:9999 --env-file .env-reporter lizlovelace/reporter
 ```

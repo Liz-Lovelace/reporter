@@ -7,22 +7,22 @@ const port = 9999;
 app.use(express.json());
 
 app.post('/submit', async (req, res) => {
-  const { channel } = req.query;
-  const { reportString, reportType } = req.body;
-
-  if (!channel || !reportString) {
-    return res.status(400).json({ error: 'Missing channel or reportString' });
-  }
-
-  let typeEmojis = {
-    runtimeError: '🔥',
-    info: 'ℹ️',
-    docker: '🐳',
-    linux: '🐧',
-    userMessage: '💬',
-  }
-
   try {
+    const { channel } = req.query;
+    const { reportString, reportType } = req.body;
+
+    if (!channel || !reportString) {
+      return res.status(400).send('Missing channel or reportString');
+    }
+
+    let typeEmojis = {
+      runtimeError: '🔥',
+      info: 'ℹ️',
+      docker: '🐳',
+      linux: '🐧',
+      userMessage: '💬',
+    }
+
     await sendTopicMessage(channel, `${typeEmojis[reportType] || ''} ${reportString}`);
     res.status(200).send('Report submitted');
   } catch (error) {
