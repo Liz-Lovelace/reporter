@@ -71,7 +71,7 @@ process.on('unhandledRejection', (error) => {
 });
 ```
 
-## Add this before `app.listen()` in express:
+## Add this before `app.listen()` in express (will not catch async route errors):
 ```javascript
 app.use((error, req, res, next) => {
   report({error, message: 'Express Error'})
